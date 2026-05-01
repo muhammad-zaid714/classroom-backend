@@ -1,20 +1,20 @@
-import { db } from './db';
-import { demoUsers } from './db/schema';
+import express from 'express';
+import subjectsRouter from './routes/subjects';
+import cors from 'cors';
+const app = express();
+const PORT = 8000;
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}))
+app.use(express.json());
 
-async function main() {
-  try {
-    const [created] = await db
-      .insert(demoUsers)
-      .values({ name: 'John Doe', email: 'john@example.com' })
-      .returning();
+app.use('/api/subjects', subjectsRouter);
 
-    console.log('Inserted user:', created);
-
-    const result = await db.select().from(demoUsers);
-    console.log('Successfully queried the database:', result);
-  } catch (error) {
-    console.error('Error querying the database:', error);
-  }
-}
-
-main();
+app.get('/',(req,res)=>{
+    res.send("Hello from the Cars API!");
+})
+app.listen(PORT,()=>{
+    console.log(`Server is running on http://localhost:${PORT}`);
+})
