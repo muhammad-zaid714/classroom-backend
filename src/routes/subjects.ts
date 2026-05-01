@@ -25,6 +25,13 @@ router.get('/',async(req,res)=>{
             filterConditions.push(
                 ilike(departments.name, `%${department}%`)
             )
+            const deptPattern = `%${String(department).replace(/[%_]/g, '\\$&')}%$`
+            filterConditions.push(
+                or(
+                    ilike(departments.name, deptPattern),
+                    eq(subjects.departmentId, Number(department))
+                )
+            )
         }
         const whereClause = filterConditions.length > 0 ? and(...filterConditions) : undefined;
         const countResult = await db.select({count:sql<number>`count(*)`})
