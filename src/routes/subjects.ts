@@ -7,16 +7,15 @@ const router = express.Router();
 router.get('/',async(req,res)=>{
     try {
         const {search,department,page=1,limit=10} = req.query;
-        const currentPage = Math.max(1,+page);
-        const limitPerPage = Math.max(1,+limit);
+        const currentPage = Math.max(1, Number(page) || 1);
+        const limitPerPage = Math.max(1, Math.min(Number(limit) || 10, 100)); // also cap max limit
         const offset = (currentPage-1)*limitPerPage;
-
         const filterConditions = [];
 
         if(search){
             filterConditions.push(
                 or(
-                    ilike(subjects.name, `%${search}`),
+                    ilike(subjects.name, `%${search}%`),
                     ilike(subjects.code, `%${search}%`)
                 )
             )
@@ -48,7 +47,7 @@ router.get('/',async(req,res)=>{
                 total:totalCount,
                 page:currentPage,
                 limit:limitPerPage,
-                totalCount:Math.ceil(totalCount/limitPerPage)
+                totalPages:Math.ceil(totalCount/limitPerPage)
             }
         });
     } catch (error) {
