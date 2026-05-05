@@ -38,7 +38,7 @@ CREATE TABLE "account" (
 	"scope" text,
 	"password" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp NOT NULL
+	"updated_at" timestamp NOT NULL DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -46,7 +46,7 @@ CREATE TABLE "session" (
 	"expires_at" timestamp NOT NULL,
 	"token" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp NOT NULL,
+	"updated_at" timestamp NOT NULL DEFAULT now(),
 	"ip_address" text,
 	"user_agent" text,
 	"user_id" text NOT NULL,
