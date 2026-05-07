@@ -1,12 +1,12 @@
 import arcjet, { detectBot, shield, slidingWindow, tokenBucket } from "@arcjet/node";
 
-if(!process.env.ARCJET_KEY && process.env.ARCJET_ENVIRONMENT !== "development") {
+if(!process.env.ARCJET_KEY && process.env.NODE_ENV !== "development" && process.env.ARCJET_ENV !== "development") {
   throw new Error("ARCJET_KEY environment variable is not set");
 }
 
- const aj = arcjet   ({
+ const aj = arcjet({
   
-  key: process.env.ARCJET_KEY!,
+  key: process.env.ARCJET_KEY ?? "arcjet_key_placeholder_dev",
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({
