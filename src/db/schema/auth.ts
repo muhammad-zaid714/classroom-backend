@@ -9,8 +9,11 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
+const timestamps = {
+  created_at: timestamp("created_at").defaultNow().notNull(),
+  updated_at: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+};
 export const roleEnum = pgEnum("role", ["student", "teacher", "admin"]);
-
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -19,11 +22,7 @@ export const user = pgTable("user", {
   image: text("image"),
   role: roleEnum("role").default("student").notNull(),
   imageCldPubId: text("image_cld_pub_id"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
+  ...timestamps,
 });
 
 export const session = pgTable(
@@ -32,10 +31,7 @@ export const session = pgTable(
     id: text("id").primaryKey(),
     expiresAt: timestamp("expires_at").notNull(),
     token: text("token").notNull().unique(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .$onUpdate(() => new Date())
-      .notNull(),
+    ...timestamps,
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
     userId: text("user_id")
@@ -61,10 +57,7 @@ export const account = pgTable(
     refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
     scope: text("scope"),
     password: text("password"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .$onUpdate(() => new Date())
-      .notNull(),
+    ...timestamps,
   },
   (table) => [
     index("account_userId_idx").on(table.userId),
@@ -82,11 +75,7 @@ export const verification = pgTable(
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
+    ...timestamps,
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)]
 );
