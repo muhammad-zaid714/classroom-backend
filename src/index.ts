@@ -1,12 +1,14 @@
+import 'dotenv/config';
 import express from 'express';
 import subjectsRouter from './routes/subjects';
 import cors from 'cors';
 import securityMiddleware from './middleware/secuirty';
 const app = express();
 const PORT = 8000;
-if(!process.env.FrontEND_URL) throw new Error("FRONTEND_URL is not defined in environment variables");
+const frontendUrl = process.env.FRONTEND_URL;
+if(!frontendUrl) throw new Error("FRONTEND_URL is not defined in environment variables");
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: frontendUrl,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
