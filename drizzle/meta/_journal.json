@@ -8,6 +8,13 @@
       "when": 1777552209113,
       "tag": "0000_oval_sunset_bain",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777971483699,
+      "tag": "0001_loose_the_fury",
+      "breakpoints": true
     }
   ]
 }
