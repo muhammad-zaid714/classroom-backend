@@ -1,6 +1,10 @@
 import arcjet, { detectBot, shield, slidingWindow, tokenBucket } from "@arcjet/node";
 
+<<<<<<< HEAD
+if(!process.env.ARCJET_KEY && process.env.ARCJET_ENV !== "development") {
+=======
 if(!process.env.ARCJET_KEY && process.env.NODE_ENV !== "development" && process.env.ARCJET_ENV !== "development") {
+>>>>>>> b76ff31f905386c67626a50eb23afa663999f3e2
   throw new Error("ARCJET_KEY environment variable is not set");
 }
 
