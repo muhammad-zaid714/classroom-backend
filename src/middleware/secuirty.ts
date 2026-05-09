@@ -1,10 +1,11 @@
 import { ArcjetNodeRequest, slidingWindow } from "@arcjet/node";
 import type {Request,Response, NextFunction } from "express";
 import aj from "../config/arcjet";
+import { user } from "../db/schema";
 const securityMiddleware = async (req:Request, res:Response, next:NextFunction) => {
     if(process.env.NODE_ENV === "test") return next();
     try {
-        const role:RateLimitRole=req.user?.role ?? 'guest';
+        const role = (req.user?.role as RateLimitRole) ?? 'guest';
         let limit : number;
         let message : string;
         switch(role){
@@ -15,7 +16,7 @@ const securityMiddleware = async (req:Request, res:Response, next:NextFunction) 
             case 'teacher':
             case 'student':
                 limit = 10;
-                message = "Teacher rate limit exceeded(10 per min).Slow down!";
+                message = `${role.charAt(0).toUpperCase() + role.slice(1)} rate limit exceeded (10 per min). Slow down!`;
                 break;
             default:
                 limit = 5;
@@ -26,15 +27,16 @@ const securityMiddleware = async (req:Request, res:Response, next:NextFunction) 
             mode:"LIVE",
             interval:60,
             max:limit,
+           characteristics: ['ip']
         }))
 
         const arcjetRequest:ArcjetNodeRequest = {
             headers: req.headers,
             method: req.method,
             url: req.originalUrl ?? req.url,
-            socket: {remoteAddress:req.socket.remoteAddress ??req.ip?? "0.0.0.0"} as any,
+            socket: {remoteAddress:req.socket.remoteAddress ??req.ip?? "0.0.0.0"} ,
         }
-        const decision = await client.protect(arcjetRequest)
+        const decision = await client.protect(arcjetRequest, { ip: req.ip ?? "0.0.0.0" });
         if(decision.isDenied() && decision.reason.isBot()) {
             return res.status(403).json({ error: "Access denied", message: "Automatic traffic is not allowed" });
         }

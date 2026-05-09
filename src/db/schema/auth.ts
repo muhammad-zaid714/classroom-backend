@@ -10,8 +10,8 @@ import {
 } from "drizzle-orm/pg-core";
 
 const timestamps = {
-  created_at: timestamp("created_at").defaultNow().notNull(),
-  updated_at: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 };
 export const roleEnum = pgEnum("role", ["student", "teacher", "admin"]);
 export const user = pgTable("user", {
