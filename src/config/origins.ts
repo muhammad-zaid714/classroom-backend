@@ -9,6 +9,16 @@ export const allowedOrigins = rawOrigins
   .map((origin) => origin.trim().replace(/\/+$/, ''))
   .filter(Boolean);
 
+export function isAllowedOrigin(origin: string | undefined) {
+  if (!origin) {
+    return false;
+  }
+
+  const normalizedOrigin = origin.replace(/\/+$/, '');
+
+  return allowedOrigins.includes(normalizedOrigin);
+}
+
 if (allowedOrigins.length === 0) {
   throw new Error('No valid frontend origins were provided');
 }

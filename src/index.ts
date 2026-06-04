@@ -10,11 +10,18 @@ import cors from 'cors';
 import securityMiddleware from './middleware/secuirty.js';
 import { auth } from './lib/auth.js';
 import { toNodeHandler } from 'better-auth/node';
-import { allowedOrigins } from './config/origins.js';
+import { isAllowedOrigin } from './config/origins.js';
 const app = express();
 const PORT = 8000;
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        if (!origin || isAllowedOrigin(origin)) {
+            callback(null, true);
+            return;
+        }
+
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
