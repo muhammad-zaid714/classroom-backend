@@ -8,23 +8,18 @@ import usersRouter from './routes/users.js';
 import classesRouter from './routes/classes.js';
 import cors from 'cors';
 import securityMiddleware from './middleware/secuirty.js';
+import { corsOptions } from './config/origins.js';
 import { auth } from './lib/auth.js';
 import { toNodeHandler } from 'better-auth/node';
-import { isAllowedOrigin } from './config/origins.js';
 const app = express();
 const PORT = 8000;
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || isAllowedOrigin(origin)) {
-            callback(null, true);
-            return;
-        }
-
-        callback(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}))
+app.use(cors(corsOptions));
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+    next();
+});
 app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use(express.json());
 app.use(securityMiddleware)

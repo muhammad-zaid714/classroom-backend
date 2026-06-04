@@ -1,24 +1,48 @@
-const rawOrigins = process.env.CORS_ORIGINS ?? process.env.FRONTEND_URL;
+import type { CorsOptions } from 'cors';
 
-if (!rawOrigins) {
-  throw new Error('CORS_ORIGINS or FRONTEND_URL is not defined in environment variables');
-}
+const normalizeOrigin = (origin: string): string => origin.replace(/\/+$/, '');
 
-export const allowedOrigins = rawOrigins
-  .split(',')
-  .map((origin) => origin.trim().replace(/\/+$/, ''))
-  .filter(Boolean);
+const parseCommaSeparatedOrigins = (value: string | undefined): string[] => {
+	if (!value) return [];
+	return value
+		.split(',')
+		.map((origin) => origin.trim())
+		.filter(Boolean)
+		.map(normalizeOrigin);
+};
 
-export function isAllowedOrigin(origin: string | undefined) {
-  if (!origin) {
-    return false;
-  }
+const isVercelOrigin = (origin: string): boolean => {
+	try {
+		return new URL(origin).hostname.endsWith('.vercel.app');
+	} catch {
+		return false;
+	}
+};
 
-  const normalizedOrigin = origin.replace(/\/+$/, '');
+const frontendUrl = process.env.FRONTEND_URL;
+const allowVercelPreview = process.env.ALLOW_VERCEL_PREVIEW !== 'false';
 
-  return allowedOrigins.includes(normalizedOrigin);
-}
+const configuredOrigins = new Set<string>([
+	...parseCommaSeparatedOrigins(frontendUrl),
+	...parseCommaSeparatedOrigins(process.env.FRONTEND_ORIGINS),
+]);
 
-if (allowedOrigins.length === 0) {
-  throw new Error('No valid frontend origins were provided');
-}
+export const corsOptions: CorsOptions = {
+	origin(origin, callback) {
+		// Allow non-browser clients and server-to-server requests without Origin header.
+		if (!origin) return callback(null, true);
+
+		const normalizedOrigin = normalizeOrigin(origin);
+		const isConfiguredOrigin = configuredOrigins.has(normalizedOrigin);
+		const isAllowedPreviewOrigin = allowVercelPreview && isVercelOrigin(normalizedOrigin);
+
+		if (isConfiguredOrigin || isAllowedPreviewOrigin) {
+			return callback(null, true);
+		}
+
+		return callback(new Error('Not allowed by CORS'));
+	},
+	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+	credentials: true,
+	optionsSuccessStatus: 204,
+};

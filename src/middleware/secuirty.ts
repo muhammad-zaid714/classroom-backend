@@ -4,6 +4,7 @@ import aj from "../config/arcjet.js";
 
 const securityMiddleware = async (req:Request, res:Response, next:NextFunction) => {
     if(process.env.NODE_ENV === "test") return next();
+    if (req.method === "OPTIONS") return next();
     try {
         const role = (req.user?.role as RateLimitRole) ?? 'guest';
         let limit : number;
