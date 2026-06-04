@@ -10,12 +10,11 @@ import cors from 'cors';
 import securityMiddleware from './middleware/secuirty.js';
 import { auth } from './lib/auth.js';
 import { toNodeHandler } from 'better-auth/node';
+import { allowedOrigins } from './config/origins.js';
 const app = express();
 const PORT = 8000;
-const frontendUrl = process.env.FRONTEND_URL;
-if(!frontendUrl) throw new Error("FRONTEND_URL is not defined in environment variables");
 app.use(cors({
-    origin: frontendUrl,
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
